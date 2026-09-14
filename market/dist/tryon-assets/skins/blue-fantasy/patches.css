@@ -535,7 +535,14 @@ html[data-dsh-skin="blue-fantasy"] [data-slot="main.conversation"] [data-turn-pr
    The items inside the header (session name, mode picker, the tabs) stay
    background-free on purpose: plates under those labels read as smudges and
    fight the official underline indicator. */
-html[data-dsh-skin="blue-fantasy"] [data-slot="main.conversation"] header,
+/* The header keeps the sidebar's own fill token and rides the wallpaper scrim
+   instead of a hand-picked 0.75: it is chrome, so it should harden as the art
+   behind it is dimmed (scrim 0 -> 0.95, scrim 1 -> 0.45). The token carries the
+   theme, so light and dark need no separate rule. */
+html[data-dsh-skin="blue-fantasy"] [data-slot="main.conversation"] header {
+  background: rgb(from var(--dsw-specific-sidebar-fill) r g b / calc(0.95 - var(--dsw-skin-scrim, .5) * 0.5));
+}
+
 html[data-dsh-skin="blue-fantasy"] [data-slot="rightbar.session"] > *,
 html[data-dsh-skin="blue-fantasy"] [class*="rightbarCol"] [class*="panel"] {
   background: rgba(242, 245, 250, 0.75);
@@ -545,7 +552,6 @@ html[data-dsh-skin="blue-fantasy"] [data-slot="main.conversation"] header {
   border-bottom: 1px solid rgba(28, 37, 70, 0.08);
 }
 
-html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [data-slot="main.conversation"] header,
 html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [data-slot="rightbar.session"] > *,
 html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [class*="rightbarCol"] [class*="panel"] {
   background: rgba(16, 22, 42, 0.75);
@@ -632,10 +638,106 @@ html[data-dsh-skin="blue-fantasy"] [data-slot="main.conversation"] [class*="prod
   backdrop-filter: blur(var(--dsh-skin-bubble-blur, 10px)) saturate(1.3);
   border-radius: 8px;
   padding: 4px 10px;
+  box-sizing: border-box;
 }
 
 html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [data-slot="main.conversation"] [class*="producedRow"] {
   background: rgb(16 22 42 / calc(var(--dsh-skin-bubble-alpha, .5) * .8));
+}
+
+/* --- composer accessory rows: which knob they read ------------------------ */
+
+/* The rows under the composer (the stats line, and the "this session" / "Go 5h"
+   chips from dsh-cost-meter) are accessories, not text plates, so they read the
+   input card's knobs rather than the bubble ones:
+
+     blur  -> --dsh-input-card-blur   (the same knob the composer card uses)
+     fill  -> --dsw-specific-input-major's alpha, on this skin's own base colour
+
+   The fill uses relative colour syntax to borrow only the alpha: writing the
+   token itself would also take its colour, and the base colour here is the
+   sidebar's. The token's alpha is itself derived from the wallpaper scrim, so
+   riding it keeps these rows in step with the composer card for free.
+
+   cm-* class names come from the dsh-cost-meter plugin. */
+html[data-dsh-skin="blue-fantasy"] [class*="cm-root"],
+html[data-dsh-skin="blue-fantasy"] [class*="-NDN2W_root"] {
+  background: rgb(from var(--dsw-specific-input-major) 242 245 250 / alpha);
+  -webkit-backdrop-filter: blur(var(--dsh-input-card-blur, 10px)) saturate(1.3);
+  backdrop-filter: blur(var(--dsh-input-card-blur, 10px)) saturate(1.3);
+  border-radius: 8px;
+  padding: 2px 10px;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [class*="cm-root"],
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [class*="-NDN2W_root"] {
+  background: rgb(from var(--dsw-specific-input-major) 29 37 57 / alpha);
+}
+
+/* The shell's accessory rule paints every direct child of the composer dock at
+   full strength, which turns the stats row into a full-width bar; the plugin
+   wants it to hug its content. */
+html[data-dsh-skin="blue-fantasy"] [data-phase="active"] [data-slot="conversation.input.dock"] > [data-composer-stats],
+html[data-dsh-skin="blue-fantasy"] [data-phase="active"] [data-slot="conversation.composer.dock"] > [data-composer-stats] {
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+html[data-dsh-skin="blue-fantasy"] [data-phase="active"] [data-slot="conversation.input.dock"] > [data-composer-stats],
+html[data-dsh-skin="blue-fantasy"] [data-phase="active"] [data-slot="conversation.composer.dock"] > [data-composer-stats],
+html[data-dsh-skin="blue-fantasy"] [data-phase="active"] [data-slot="conversation.input.dock"] > [class*="cm-root"],
+html[data-dsh-skin="blue-fantasy"] [data-phase="active"] [data-slot="conversation.composer.dock"] > [class*="cm-root"] {
+  background: rgb(from var(--dsw-specific-input-major) 242 245 250 / alpha) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-input-card-blur, 10px)) saturate(1.3) !important;
+  backdrop-filter: blur(var(--dsh-input-card-blur, 10px)) saturate(1.3) !important;
+  box-shadow: none !important;
+}
+
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [data-phase="active"] [data-slot="conversation.input.dock"] > [data-composer-stats],
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [data-phase="active"] [data-slot="conversation.composer.dock"] > [data-composer-stats],
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [data-phase="active"] [data-slot="conversation.input.dock"] > [class*="cm-root"],
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [data-phase="active"] [data-slot="conversation.composer.dock"] > [class*="cm-root"] {
+  background: rgb(from var(--dsw-specific-input-major) 29 37 57 / alpha) !important;
+}
+
+/* The "Go 5h" strip is a wrapper the plugin leaves bare -- its chips carry the
+   fill -- so the accessory plate on it is pure surplus. */
+html[data-dsh-skin="blue-fantasy"] [data-phase="active"] [data-slot="conversation.input.dock"] > [class*="cm-qstrip"],
+html[data-dsh-skin="blue-fantasy"] [data-phase="active"] [data-slot="conversation.composer.dock"] > [class*="cm-qstrip"] {
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-dsh-skin="blue-fantasy"] [class*="cm-qchip"] {
+  background: rgb(from var(--dsw-specific-input-major) 242 245 250 / alpha);
+  -webkit-backdrop-filter: blur(var(--dsh-input-card-blur, 10px)) saturate(1.3);
+  backdrop-filter: blur(var(--dsh-input-card-blur, 10px)) saturate(1.3);
+}
+
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [class*="cm-qchip"] {
+  background: rgb(from var(--dsw-specific-input-major) 29 37 57 / alpha);
+}
+
+html[data-dsh-skin="blue-fantasy"] [class*="cm-qchip"]:hover {
+  background-color: rgb(from var(--dsw-specific-input-major) 242 245 250 / alpha);
+  background-image: linear-gradient(rgba(74, 95, 168, 0.08), rgba(74, 95, 168, 0.08));
+  -webkit-backdrop-filter: blur(var(--dsh-input-card-blur, 10px)) saturate(1.3);
+  backdrop-filter: blur(var(--dsh-input-card-blur, 10px)) saturate(1.3);
+}
+
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [class*="cm-qchip"]:hover {
+  background-color: rgb(from var(--dsw-specific-input-major) 29 37 57 / alpha);
+  background-image: linear-gradient(rgba(160, 185, 235, 0.08), rgba(160, 185, 235, 0.08));
 }
 
 html[data-dsh-skin="blue-fantasy"] [id="root"] { background: transparent; }
