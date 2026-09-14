@@ -27,9 +27,23 @@ html[data-dsh-skin="blue-fantasy"] [data-pane="sidebar"] {
   color: var(--dsw-alias-label-primary);
 }
 
+/* The shell's tooltip fill is --dsw-alias-tooltip-bg, which resolves to the same
+   pale yellow (#ffffe1) in both themes -- it is never tinted, so on this skin it
+   is the only warm block on screen and it does not answer the dark theme. Plate
+   it in the skin's own panel colour instead, with a hairline edge so a pale
+   plate still reads against pale art. */
 html[data-dsh-skin="blue-fantasy"] [role="tooltip"] {
-  background: var(--dsw-alias-tooltip-bg);
-  color: var(--dsw-alias-tooltip-fg);
+  background: rgba(242, 245, 250, 0.92);
+  color: #1d2539;
+  border: 0.5px solid rgba(28, 37, 70, 0.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.3);
+  backdrop-filter: blur(10px) saturate(1.3);
+}
+
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [role="tooltip"] {
+  background: rgba(16, 22, 42, 0.92);
+  color: #dbe2f2;
+  border-color: rgba(160, 180, 230, 0.14);
 }
 
 html[data-dsh-skin="blue-fantasy"] [role="dialog"], html[data-dsh-skin="blue-fantasy"] [role="dialog"] [class*="navCell"]:not([aria-current="true"]) {
@@ -636,6 +650,102 @@ html[data-dsh-skin="blue-fantasy"] [data-slot="main.conversation"] [class*="prod
 
 html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [data-slot="main.conversation"] [class*="producedRow"] {
   background: rgb(16 22 42 / calc(var(--dsh-skin-bubble-alpha, .5) * .8));
+}
+
+/* --- sidebar hovercard: re-tint it for this skin -------------------------- */
+
+/* The shell ships a deliberately dark hovercard: --dsw-hovercard-bg is written
+   as #2C2C2E on the card element itself, with white and grey text to match. On
+   a light skin that is a near-black block, and it does not follow the theme.
+   Re-tint the card and its three text rows together -- changing the fill alone
+   would leave white text on a pale plate. Note the card's role is "button", not
+   "tooltip", so the tooltip rule above never reached it. */
+html[data-dsh-skin="blue-fantasy"] [class*="_card_1b2ny"] {
+  --dsw-hovercard-bg: rgba(242, 245, 250, 0.96);
+  background: rgba(242, 245, 250, 0.96);
+}
+
+html[data-dsh-skin="blue-fantasy"] [class*="hoverTitle"] {
+  color: #1d2539;
+}
+
+html[data-dsh-skin="blue-fantasy"] [class*="hoverTime"],
+html[data-dsh-skin="blue-fantasy"] [class*="hoverStatus"] {
+  color: #5a6a8c;
+}
+
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [class*="_card_1b2ny"] {
+  --dsw-hovercard-bg: rgba(16, 22, 42, 0.96);
+  background: rgba(16, 22, 42, 0.96);
+}
+
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [class*="hoverTitle"] {
+  color: #dbe2f2;
+}
+
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [class*="hoverTime"],
+html[data-dsh-skin="blue-fantasy"] body[data-ds-dark-theme] [class*="hoverStatus"] {
+  color: #a8b6d4;
+}
+
+/* --- queued messages: drop the shell's accessory plate -------------------- */
+
+/* The shell's accessory rule paints every direct child of the composer dock,
+   and the queue dock is one of them. The queue's own panel already carries a
+   fill, so that plate is a second layer -- and because the dock keeps its
+   dock-inset padding while the panel sits inside it, the plate is also 8px
+   wider than the panel on each side. Clear it and leave the dock's geometry
+   alone. */
+html[data-dsh-skin="blue-fantasy"] [data-phase="active"] [data-slot="conversation.input.dock"] > [data-queue-dock],
+html[data-dsh-skin="blue-fantasy"] [data-phase="active"] [data-slot="conversation.composer.dock"] > [data-queue-dock] {
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* --- reply cards: frost them like the composer card ---------------------- */
+
+/* The answering card and the plan-review card render as
+   `div.frame[data-*-key] > section` and only set a fill, so they sat flat next
+   to a frosted composer. Their fill is already translucent, so frosting is all
+   they need, and it reads the same knob the composer card does. */
+html[data-dsh-skin="blue-fantasy"] [data-question-key] > section,
+html[data-dsh-skin="blue-fantasy"] [data-plan-review-key] > section {
+  -webkit-backdrop-filter: blur(var(--dsh-input-card-blur, 10px)) saturate(1.3);
+  backdrop-filter: blur(var(--dsh-input-card-blur, 10px)) saturate(1.3);
+}
+
+/* --- right sidebar panel: one plate, and a divider matching the left pane -- */
+
+/* Two things. The panel fill is bg-layer-1 rather than the shell's bg-base,
+   which is very transparent (rgba(255,255,255,0.225)) and lets the art read
+   through a panel that is meant to be a surface. And the divider: the shell
+   draws the left pane with --dsw-alias-border-l3 but this panel with -l4, one
+   step darker, so the two verticals did not match. */
+html[data-dsh-skin="blue-fantasy"] [class*="rightbarCol"] [class*="panel"] {
+  background: var(--dsw-alias-bg-layer-1);
+  border-left-color: var(--dsw-alias-border-l3);
+}
+
+/* ...and only one plate. The panel nests a panelBody of nearly the same size,
+   and the shell's own combined rule already matches every element whose class
+   contains "panel" -- so both layers were taking a 0.75 fill and the panel read
+   as 0.94. Clear the nested one and the outer plate stays. */
+html[data-dsh-skin="blue-fantasy"] [class*="rightbarCol"] [class*="panel"] [class*="panel"] {
+  background: none;
+}
+
+/* --- bottom panel: continue the right divider ---------------------------- */
+
+/* Expanded, the bottom panel ends 1px past the right panel's left border and
+   covers it, so the vertical line broke at the junction. Give the bottom panel
+   the same border -- inside its own width, hence border-box -- and the line
+   runs through the full height the way it does beside the left pane. */
+html[data-dsh-skin="blue-fantasy"] [class*="bottomPanel"] {
+  box-sizing: border-box;
+  border-right: 1px solid var(--dsw-alias-border-l3);
 }
 
 html[data-dsh-skin="blue-fantasy"] [id="root"] { background: transparent; }
